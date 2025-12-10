@@ -3,6 +3,9 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TodoController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CreateController;
+use App\Http\Controllers\EditController;
+use App\Http\Controllers\DeleteController;
 
 Route::get('/', [TodoController::class, 'index'])->name('home')->middleware('auth');
 Route::get('login', [AuthController::class, 'login'])->name('login');
@@ -14,9 +17,9 @@ Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 // Todo Routes (protected by auth middleware)
 Route::middleware('auth')->group(function () {
     Route::get('/todos/create', [TodoController::class, 'create'])->name('todos.create');
-    Route::post('/todos', [TodoController::class, 'store'])->name('todos.store');
+    Route::post('/todos', [CreateController::class, 'store'])->name('todos.store');
     Route::get('/todos/{todo}/edit', [TodoController::class, 'edit'])->name('todos.edit');
-    Route::put('/todos/{todo}', [TodoController::class, 'update'])->name('todos.update');
-    Route::delete('/todos/{todo}', [TodoController::class, 'destroy'])->name('todos.destroy');
-    Route::patch('/todos/{todo}/toggle', [TodoController::class, 'toggleStatus'])->name('todos.toggle');
+    Route::put('/todos/{todo}', [EditController::class, 'update'])->name('todos.update');
+    Route::delete('/todos/{todo}', [DeleteController::class, 'destroy'])->name('todos.destroy');
+    Route::patch('/todos/{todo}/toggle', [EditController::class, 'toggleStatus'])->name('todos.toggle');
 });

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ToDo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use App\Helpers\DateHelper;
 
 class TodoController extends Controller
 {
@@ -16,10 +16,15 @@ class TodoController extends Controller
                     ->get();
 
         foreach($todos as $todo) {
-            if($todo->deadline && Carbon::parse($todo->deadline)->isPast() && $todo->status === 'pending') {
+            if($todo->deadline && DateHelper::isPast($todo->deadline) && $todo->status === 'pending') {
                 $todo->update(['status' => 'late']);
             }
         }
+
+        // Format data untuk view
+        $formattedTodos = $todos->map(function($todo) {
+            return $this->formatTodoData($todo);
+        });
 
         $stats = [
             'total' => $todos->count(),
@@ -28,7 +33,7 @@ class TodoController extends Controller
             'late' => $todos->where('status', 'late')->count(),
         ];
 
-        return view('index', compact('todos', 'stats'));
+        return view('index', ['todos' => $formattedTodos, 'stats' => $stats]);
     }
 
     //untuk menampilkan halaman create todo
@@ -43,6 +48,47 @@ class TodoController extends Controller
             abort(403);
         }
 
-        return view('todos.edit', compact('todo'));
+        // Format data untuk view
+        $formattedTodo = $this->formatTodoData($todo);
+
+        return view('todos.edit', ['todo' => $formattedTodo]);
+    }
+
+    /**
+     * Format todo data dengan DateHelper
+     */
+    private function formatTodoData($todo)
+    {
+        $deadlineBadge = DateHelper::formatDeadlineWithColor($todo->deadline);
+        
+        return (object) [
+            'id' => $todo->id,
+            'user_id' => $todo->user_id,
+            'title' => $todo->title,
+            'description' => $todo->description,
+            'status' => $todo->status,
+            'deadline' => $todo->deadline,
+            'completed_at' => $todo->completed_at,
+            'created_at' => $todo->created_at,
+            'updated_at' => $todo->updated_at,
+            
+            // Formatted fields
+            'deadline_formatted' => DateHelper::formatIndonesian($todo->deadline),
+            'deadline_short' => DateHelper::formatShort($todo->deadline),
+            'deadline_relative' => DateHelper::formatRelative($todo->deadline),
+            'deadline_badge_text' => $deadlineBadge['text'],
+            'deadline_badge_color' => $deadlineBadge['color'],
+            'deadline_for_input' => DateHelper::formatForInput($todo->deadline),
+            'deadline_days_until' => DateHelper::daysUntil($todo->deadline),
+            'deadline_is_past' => DateHelper::isPast($todo->deadline),
+            'deadline_is_today' => DateHelper::isToday($todo->deadline),
+            'deadline_is_tomorrow' => DateHelper::isTomorrow($todo->deadline),
+            
+            'completed_at_formatted' => DateHelper::formatIndonesian($todo->completed_at),
+            'completed_at_with_time' => DateHelper::formatWithTime($todo->completed_at),
+            
+            'created_at_formatted' => DateHelper::formatIndonesian($todo->created_at),
+            'updated_at_formatted' => DateHelper::formatIndonesian($todo->updated_at),
+        ];
     }
 }

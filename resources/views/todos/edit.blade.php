@@ -99,9 +99,7 @@
             $priorityGradient = 'from-gray-100 to-gray-200';
 
             if($todo->deadline && $todo->status !== 'completed') {
-                $deadline = \Carbon\Carbon::parse($todo->deadline);
-                $now = \Carbon\Carbon::now();
-                $diffInDays = $now->diffInDays($deadline, false);
+                $diffInDays = $todo->deadline_days_until;
 
                 if($diffInDays < 0) {
                     $currentPriorityBadge = '<span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-red-200 text-red-800 animate-pulse"><i class="fas fa-fire mr-2"></i>URGENT</span>';
@@ -136,7 +134,14 @@
                         @if($todo->deadline)
                             <p class="text-gray-600 mt-2 flex items-center">
                                 <i class="fas fa-calendar-alt mr-2"></i>
-                                Deadline: {{ \Carbon\Carbon::parse($todo->deadline)->format('M d, Y') }}
+                                Deadline: {{ $todo->deadline_formatted }}
+                                <span class="ml-3 text-sm px-2 py-1 rounded-full
+                                    @if($todo->deadline_badge_color === 'red') bg-red-200 text-red-800
+                                    @elseif($todo->deadline_badge_color === 'orange') bg-orange-200 text-orange-800
+                                    @elseif($todo->deadline_badge_color === 'yellow') bg-yellow-200 text-yellow-800
+                                    @elseif($todo->deadline_badge_color === 'blue') bg-blue-200 text-blue-800
+                                    @else bg-green-200 text-green-800
+                                    @endif">{{ $todo->deadline_badge_text }}</span>
                             </p>
                         @endif
                     </div>
@@ -182,7 +187,7 @@
 
             <!-- Form Content -->
             <div class="p-8">
-                <form action="{{ route('todos.update', $todo) }}" method="POST" class="space-y-8" id="updateForm">
+                <form action="{{ route('todos.update', $todo->id) }}" method="POST" class="space-y-8" id="updateForm">
                     @csrf
                     @method('PUT')
 
@@ -244,7 +249,7 @@
                             <input type="date"
                                    id="deadline"
                                    name="deadline"
-                                   value="{{ old('deadline', $todo->deadline ? \Carbon\Carbon::parse($todo->deadline)->format('Y-m-d') : '') }}"
+                                   value="{{ old('deadline', $todo->deadline_for_input) }}"
                                    class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary focus:ring-opacity-20 focus:border-primary transition duration-300 text-lg @error('deadline') border-red-500 @enderror">
                             <div class="absolute inset-y-0 right-0 flex items-center pr-6">
                                 <i class="fas fa-clock text-gray-400 group-focus-within:text-primary transition duration-300"></i>
@@ -354,7 +359,7 @@
 
                 <!-- Delete Form (Separate) -->
                 <div class="mt-6 pt-6 border-t-2 border-gray-100">
-                    <form action="{{ route('todos.destroy', $todo) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this task? This action cannot be undone. May Allah guide your decision.')">
+                    <form action="{{ route('todos.destroy', $todo->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this task? This action cannot be undone. May Allah guide your decision.')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="bg-gradient-to-r from-red-100 to-red-200 hover:from-red-200 hover:to-red-300 text-red-700 px-8 py-4 rounded-2xl font-semibold transition duration-300 transform hover:scale-105 flex items-center shadow-lg">
@@ -372,7 +377,7 @@
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Toggle Status -->
-                <form action="{{ route('todos.toggle', $todo) }}" method="POST" class="w-full">
+                <form action="{{ route('todos.toggle', $todo->id) }}" method="POST" class="w-full">
                     @csrf
                     @method('PATCH')
                     <button type="submit" class="w-full bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 text-blue-700 px-6 py-4 rounded-2xl font-semibold transition duration-300 transform hover:scale-105 flex items-center justify-center shadow-lg">

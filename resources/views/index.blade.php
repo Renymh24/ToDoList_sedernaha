@@ -186,7 +186,7 @@
                                 <div class="flex items-start justify-between">
                                     <div class="flex items-start space-x-6 flex-1">
                                         <!-- Enhanced Status Toggle -->
-                                        <form action="{{ route('todos.toggle', $todo) }}" method="POST" class="mt-2">
+                                        <form action="{{ route('todos.toggle', $todo->id) }}" method="POST" class="mt-2">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" class="text-3xl transition duration-300 hover:scale-125 transform">
@@ -220,9 +220,16 @@
 
                                                 <!-- Enhanced Deadline -->
                                                 @if($todo->deadline)
-                                                    <span class="text-sm text-gray-500 flex items-center bg-gray-50 px-3 py-1 rounded-full">
+                                                    <span class="text-sm flex items-center px-3 py-1 rounded-full
+                                                        @if($todo->deadline_badge_color === 'red') bg-red-100 text-red-700
+                                                        @elseif($todo->deadline_badge_color === 'orange') bg-orange-100 text-orange-700
+                                                        @elseif($todo->deadline_badge_color === 'yellow') bg-yellow-100 text-yellow-700
+                                                        @elseif($todo->deadline_badge_color === 'blue') bg-blue-100 text-blue-700
+                                                        @elseif($todo->deadline_badge_color === 'green') bg-green-100 text-green-700
+                                                        @else bg-gray-50 text-gray-500
+                                                        @endif">
                                                         <i class="fas fa-calendar-alt mr-2"></i>
-                                                        {{ \Carbon\Carbon::parse($todo->deadline)->format('M d, Y') }}
+                                                        {{ $todo->deadline_badge_text }}
                                                     </span>
                                                 @endif
                                             </div>
@@ -231,12 +238,12 @@
 
                                     <!-- Enhanced Actions -->
                                     <div class="flex items-center space-x-3 ml-6">
-                                        <a href="{{ route('todos.edit', $todo) }}"
+                                        <a href="{{ route('todos.edit', $todo->id) }}"
                                            class="text-primary hover:text-secondary p-3 rounded-xl hover:bg-primary hover:bg-opacity-10 transition duration-300 transform hover:scale-110"
                                            title="Edit task">
                                             <i class="fas fa-edit text-lg"></i>
                                         </a>
-                                        <form action="{{ route('todos.destroy', $todo) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this task?')">
+                                        <form action="{{ route('todos.destroy', $todo->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this task?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-800 p-3 rounded-xl hover:bg-red-50 transition duration-300 transform hover:scale-110">
@@ -303,7 +310,7 @@
                                                     @if($todo->deadline)
                                                         <span class="text-sm text-gray-500 flex items-center bg-gray-100 px-3 py-1 rounded-full">
                                                             <i class="fas fa-calendar-alt mr-2"></i>
-                                                            Due: {{ \Carbon\Carbon::parse($todo->deadline)->format('M d, Y') }}
+                                                            Due: {{ $todo->deadline_formatted }}
                                                         </span>
                                                     @endif
 
@@ -311,7 +318,7 @@
                                                     @if($todo->completed_at)
                                                         <span class="text-sm text-green-700 flex items-center bg-green-100 px-3 py-1 rounded-full font-medium">
                                                             <i class="fas fa-check mr-2"></i>
-                                                            Completed {{ \Carbon\Carbon::parse($todo->completed_at)->format('M d, Y') }}
+                                                            Completed {{ $todo->completed_at_formatted }}
                                                         </span>
                                                     @endif
                                                 </div>
@@ -321,7 +328,7 @@
                                         <!-- Completed Task Actions -->
                                         <div class="flex items-center space-x-3 ml-6">
                                             <!-- Reopen Task Button -->
-                                            <form action="{{ route('todos.toggle', $todo) }}" method="POST" class="inline">
+                                            <form action="{{ route('todos.toggle', $todo->id) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit"
@@ -332,7 +339,7 @@
                                             </form>
 
                                             <!-- Delete Button -->
-                                            <form action="{{ route('todos.destroy', $todo) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this completed task?')">
+                                            <form action="{{ route('todos.destroy', $todo->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this completed task?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-800 p-3 rounded-xl hover:bg-red-50 transition duration-300 transform hover:scale-110">

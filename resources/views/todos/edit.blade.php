@@ -136,7 +136,7 @@
                         @if($todo->deadline)
                             <p class="text-gray-600 mt-2 flex items-center">
                                 <i class="fas fa-calendar-alt mr-2"></i>
-                                Deadline: {{ \Carbon\Carbon::parse($todo->deadline)->format('M d, Y') }}
+                                Deadline: {{ format_date($todo->deadline, 'M d, Y') }}
                             </p>
                         @endif
                     </div>
@@ -242,9 +242,9 @@
                         </label>
                         <div class="relative">
                             <input type="date"
-                                   id="deadline"
-                                   name="deadline"
-                                   value="{{ old('deadline', $todo->deadline ? \Carbon\Carbon::parse($todo->deadline)->format('Y-m-d') : '') }}"
+                                id="deadline"
+                                name="deadline"
+                                value="{{ old('deadline', $todo->deadline ? format_date($todo->deadline, 'Y-m-d') : '') }}"
                                    class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary focus:ring-opacity-20 focus:border-primary transition duration-300 text-lg @error('deadline') border-red-500 @enderror">
                             <div class="absolute inset-y-0 right-0 flex items-center pr-6">
                                 <i class="fas fa-clock text-gray-400 group-focus-within:text-primary transition duration-300"></i>
@@ -314,7 +314,7 @@
                                     <i class="fas fa-calendar-plus text-primary mr-3"></i>
                                     <div>
                                         <span class="text-gray-600 block">Created:</span>
-                                        <span class="text-gray-900 font-semibold">{{ $todo->created_at->format('M d, Y H:i') }}</span>
+                                        <span class="text-gray-900 font-semibold">{{ format_date($todo->created_at, 'M d, Y H:i') }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -323,7 +323,7 @@
                                     <i class="fas fa-edit text-secondary mr-3"></i>
                                     <div>
                                         <span class="text-gray-600 block">Last Updated:</span>
-                                        <span class="text-gray-900 font-semibold">{{ $todo->updated_at->format('M d, Y H:i') }}</span>
+                                        <span class="text-gray-900 font-semibold">{{ format_date($todo->updated_at, 'M d, Y H:i') }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -333,7 +333,7 @@
                                         <i class="fas fa-check-circle text-green-600 mr-3"></i>
                                         <div>
                                             <span class="text-gray-600 block">Completed with Barakah:</span>
-                                            <span class="text-green-600 font-bold">{{ \Carbon\Carbon::parse($todo->completed_at)->format('M d, Y H:i') }}</span>
+                                            <span class="text-green-600 font-bold">{{ format_date($todo->completed_at, 'M d, Y H:i') }}</span>
                                         </div>
                                     </div>
                                 </div>

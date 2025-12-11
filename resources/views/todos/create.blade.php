@@ -202,10 +202,10 @@
                         </label>
                         <div class="relative">
                             <input type="date"
-                                   id="deadline"
-                                   name="deadline"
-                                   value="{{ old('deadline', isset($duplicateTask) && $duplicateTask->deadline ? \Carbon\Carbon::parse($duplicateTask->deadline)->format('Y-m-d') : '') }}"
-                                   min="{{ date('Y-m-d') }}"
+                                id="deadline"
+                                name="deadline"
+                                value="{{ old('deadline', isset($duplicateTask) && $duplicateTask->deadline ? format_date($duplicateTask->deadline, 'Y-m-d') : '') }}"
+                                min="{{ date('Y-m-d') }}"
                                    class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary focus:ring-opacity-20 focus:border-primary transition duration-300 text-lg @error('deadline') border-red-500 @enderror">
                             <div class="absolute inset-y-0 right-0 flex items-center pr-6">
                                 <i class="fas fa-clock text-gray-400 group-focus-within:text-primary transition duration-300"></i>

@@ -222,7 +222,7 @@
                                                 @if($todo->deadline)
                                                     <span class="text-sm text-gray-500 flex items-center bg-gray-50 px-3 py-1 rounded-full">
                                                         <i class="fas fa-calendar-alt mr-2"></i>
-                                                        {{ \Carbon\Carbon::parse($todo->deadline)->format('M d, Y') }}
+                                                        {{ format_date($todo->deadline, 'M d, Y') }}
                                                     </span>
                                                 @endif
                                             </div>
@@ -303,7 +303,7 @@
                                                     @if($todo->deadline)
                                                         <span class="text-sm text-gray-500 flex items-center bg-gray-100 px-3 py-1 rounded-full">
                                                             <i class="fas fa-calendar-alt mr-2"></i>
-                                                            Due: {{ \Carbon\Carbon::parse($todo->deadline)->format('M d, Y') }}
+                                                            Due: {{ format_date($todo->deadline, 'M d, Y') }}
                                                         </span>
                                                     @endif
 
@@ -311,7 +311,7 @@
                                                     @if($todo->completed_at)
                                                         <span class="text-sm text-green-700 flex items-center bg-green-100 px-3 py-1 rounded-full font-medium">
                                                             <i class="fas fa-check mr-2"></i>
-                                                            Completed {{ \Carbon\Carbon::parse($todo->completed_at)->format('M d, Y') }}
+                                                            Completed {{ format_date($todo->completed_at, 'M d, Y') }}
                                                         </span>
                                                     @endif
                                                 </div>

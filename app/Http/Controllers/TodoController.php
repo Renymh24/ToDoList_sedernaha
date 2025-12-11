@@ -6,6 +6,7 @@ use App\Models\ToDo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Helpers\DateHelper;
 
 class TodoController extends Controller
 {
@@ -42,6 +43,12 @@ class TodoController extends Controller
         if($todo->user_id !== Auth::id()){
             abort(403);
         }
+
+        // attach formatted date strings for convenience
+        $todo->created_at_formatted = DateHelper::formatDate($todo->created_at, 'M d, Y H:i');
+        $todo->updated_at_formatted = DateHelper::formatDate($todo->updated_at, 'M d, Y H:i');
+        $todo->deadline_for_input = $todo->deadline ? DateHelper::formatDate($todo->deadline, 'Y-m-d') : null;
+        $todo->completed_at_formatted = $todo->completed_at ? DateHelper::formatDate($todo->completed_at, 'M d, Y H:i') : null;
 
         return view('todos.edit', compact('todo'));
     }

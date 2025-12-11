@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Models\ToDo;
 class DeleteController extends Controller
 {
      public function destroy(ToDo $todo){

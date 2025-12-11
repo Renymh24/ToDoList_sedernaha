@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\ToDo;
+use Illuminate\Support\Facades\Auth;
+
+
 
 class CreateController extends Controller
 {

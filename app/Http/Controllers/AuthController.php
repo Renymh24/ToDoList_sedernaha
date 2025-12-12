@@ -6,6 +6,8 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
 
 class AuthController extends Controller
 {
@@ -18,6 +20,8 @@ class AuthController extends Controller
 
     public function login()
     {
+        Log::info("ada user login");
+        Log::warning("user tidak terdaftar");
         if (auth()->check()) {
             return redirect('/');
         }

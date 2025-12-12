@@ -1,9 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
 use App\Models\ToDo;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class EditController extends Controller

@@ -6,6 +6,8 @@ use App\Repositories\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
 
 class AuthService
 {
@@ -16,6 +18,21 @@ class AuthService
         $this->users = $users;
     }
 
+      public function login(string $email, string $password): array
+    {
+        $user = $this->users->findByEmail($email);
+        if (!$user) {
+            Log::error('email tidak ditemukan');
+            return ['success' => false, 'errors' => ['email' => 'Email tidak ditemukan']];
+        }
+
+        if (!Hash::check($password, $user->password)) {
+            return ['success' => false, 'errors' => ['password' => 'Password salah']];
+        }
+
+        Auth::login($user);
+        return ['success' => true, 'user' => $user];
+    }
     public function register(array $data): array
     {
         // assume validation was already performed by FormRequest
@@ -32,20 +49,7 @@ class AuthService
    
     }
 
-    public function login(string $email, string $password): array
-    {
-        $user = $this->users->findByEmail($email);
-        if (!$user) {
-            return ['success' => false, 'errors' => ['email' => 'Email tidak ditemukan']];
-        }
-
-        if (!Hash::check($password, $user->password)) {
-            return ['success' => false, 'errors' => ['password' => 'Password salah']];
-        }
-
-        Auth::login($user);
-        return ['success' => true, 'user' => $user];
-    }
+  
 
     public function logout(): void
     {

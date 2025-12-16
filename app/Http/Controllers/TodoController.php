@@ -10,10 +10,19 @@ use App\Helpers\DateHelper;
 class TodoController extends Controller
 {
     //untuk menampilkan data todo
-    public function index(){
-        $todos = ToDo::where('user_id', Auth::id())
-                    ->orderBy('deadline', 'asc')
-                    ->get();
+    public function index(Request $request){
+        $query = ToDo::where('user_id', Auth::id());
+
+        // Pencarian berdasarkan deskripsi atau title
+        if($request->has('search') && $request->search != '') {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('description', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhere('title', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+
+        $todos = $query->orderBy('deadline', 'asc')->get();
 
         foreach($todos as $todo) {
             if($todo->deadline && DateHelper::isPast($todo->deadline) && $todo->status === 'pending') {
@@ -33,7 +42,11 @@ class TodoController extends Controller
             'late' => $todos->where('status', 'late')->count(),
         ];
 
-        return view('index', ['todos' => $formattedTodos, 'stats' => $stats]);
+        return view('index', [
+            'todos' => $formattedTodos, 
+            'stats' => $stats,
+            'search' => $request->search ?? ''
+        ]);
     }
 
     //untuk menampilkan halaman create todo

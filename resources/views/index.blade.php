@@ -170,6 +170,49 @@
             </a>
         </div>
 
+        <!-- Search Form -->
+        <div class="mb-8">
+            <form method="GET" action="{{ route('home') }}" class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-primary">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex-grow">
+                        <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-search mr-2 text-primary"></i>Search Tasks
+                        </label>
+                        <input 
+                            type="text" 
+                            id="search" 
+                            name="search" 
+                            value="{{ $search }}"
+                            placeholder="Search by title or description..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-300"
+                        >
+                    </div>
+                    <div class="flex gap-2 items-end">
+                        <button 
+                            type="submit" 
+                            class="bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white px-8 py-3 rounded-xl font-semibold transition duration-300 transform hover:scale-105 shadow-lg flex items-center whitespace-nowrap"
+                        >
+                            <i class="fas fa-search mr-2"></i>Search
+                        </button>
+                        @if($search)
+                        <a 
+                            href="{{ route('home') }}" 
+                            class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-semibold transition duration-300 transform hover:scale-105 shadow-lg flex items-center whitespace-nowrap"
+                        >
+                            <i class="fas fa-times mr-2"></i>Reset
+                        </a>
+                        @endif
+                    </div>
+                </div>
+                @if($search)
+                <div class="mt-4 text-sm text-gray-600">
+                    <i class="fas fa-info-circle mr-2 text-primary"></i>
+                    Showing results for: <strong class="text-primary">"{{ $search }}"</strong>
+                </div>
+                @endif
+            </form>
+        </div>
+
         <!-- Enhanced Todo List -->
         <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
             @if($todos->count() > 0)

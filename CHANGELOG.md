@@ -7,6 +7,44 @@ dan proyek ini mematuhi [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+- **Fitur Pencarian**
+  - Pencarian data berdasarkan judul dan deskripsi
+  - Input search dengan desain Islamic theme yang konsisten
+  - Tombol reset untuk menghapus pencarian
+  - Indikator hasil pencarian aktif dengan badge
+
+- **Fitur Filter Status**
+  - Filter berdasarkan status todo (All, Pending, Completed, Late)
+  - Dropdown select dengan desain responsive
+  - Filter dapat dikombinasikan dengan pencarian
+  - Badge berwarna untuk menunjukkan filter aktif
+  - Tombol apply dan reset untuk kontrol filter
+
+- **Error Handling untuk Deadline**
+  - Validasi deadline wajib diisi (required)
+  - Custom error messages dalam bahasa Indonesia
+  - Validasi tanggal tidak boleh masa lalu (after_or_equal:today)
+  - UI indicator dengan tanda asterisk merah (*)
+  - HTML5 validation dengan atribut required dan min
+  - Warning box merah untuk informasi deadline wajib
+  - Error handling di CreateController dan EditController
+
+### Changed
+- TodoController.php: Menambahkan parameter Request untuk pencarian dan filter
+- Index view: Menambahkan form pencarian dan filter yang terintegrasi
+- CreateController.php: Mengubah validasi deadline dari nullable menjadi required
+- EditController.php: Menambahkan validasi after_or_equal untuk deadline
+- create.blade.php: Menambahkan indicator wajib dan warning box untuk deadline
+- edit.blade.php: Menambahkan indicator wajib dan warning box untuk deadline
+
+### Technical Details
+- Search menggunakan LIKE query dengan wildcard untuk partial matching
+- Filter status dengan WHERE clause conditional
+- Dual validation: client-side (HTML5) dan server-side (Laravel)
+- Responsive design untuk mobile dan desktop
+- Persistent filter state dengan old() helper
+
 ## [1.0.0] - 2025-05-30
 
 ### Added
@@ -141,7 +179,18 @@ Rilis pertama ToDoList dengan fitur dasar:
 - Frontend dengan Tailwind CSS
 
 ---
+
+## Changelog Detail
+
+### December 17, 2025
+- ✅ Implementasi fitur pencarian data berdasarkan deskripsi dan judul
+- ✅ Implementasi fitur filter berdasarkan status (pending, completed, late)
+- ✅ Penambahan error handling untuk input deadline kosong
+- ✅ Peningkatan user experience dengan visual feedback dan warning messages
+- ✅ Integrasi search dan filter dalam satu form yang responsive
+
+---
 Terimakasih
-**Last Updated**: 2025-12-12
+**Last Updated**: 2025-12-17
 
 

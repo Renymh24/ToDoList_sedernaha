@@ -170,7 +170,46 @@ npm run dev
 - **SQLite/MySQL**: Database
 
 ## Catatan Versi
+### Versi 1.1.0 - Search, Filter & Validation Enhancement (December 17, 2025)
+Rilis kedua dengan peningkatan fitur pencarian, filter, dan validasi:
 
+**🔍 Fitur Pencarian**
+- Pencarian real-time berdasarkan judul dan deskripsi todo
+- UI/UX yang user-friendly dengan feedback visual
+- Kombinasi pencarian dengan filter status
+- Badge indicator untuk menampilkan kata kunci pencarian aktif
+- Tombol reset untuk clear pencarian dengan mudah
+
+**🎯 Fitur Filter Status**
+- Filter dropdown dengan 4 opsi: All, Pending, Completed, Late
+- Visual feedback dengan badge berwarna untuk filter aktif
+- Responsive design untuk mobile dan desktop
+- Persistent state menggunakan query parameters
+- Integrasi seamless dengan fitur pencarian
+
+**✅ Error Handling & Validasi**
+- Validasi deadline wajib diisi (required validation)
+- Pencegahan input tanggal masa lalu (after_or_equal:today)
+- Custom error messages dalam Bahasa Indonesia
+- Dual validation: Client-side (HTML5) & Server-side (Laravel)
+- Visual indicators dengan asterisk merah dan warning box
+- User-friendly error messages dengan icon dan styling
+
+**🔧 Technical Improvements**
+- Query optimization dengan WHERE clause conditional
+- LIKE query dengan wildcard untuk flexible search
+- Code refactoring di TodoController untuk maintainability
+- Enhanced form validation di CreateController dan EditController
+- Improved UX dengan active filters display
+
+**📱 UI/UX Enhancements**
+- Islamic theme consistency maintained
+- Responsive layout untuk semua ukuran layar
+- Visual feedback untuk semua user actions
+- Improved form hints dan help text
+- Better error message presentation
+
+### Versi 1.0.0 - Initial Release (May 30, 2025)
 ### Versi 1.0.0 - Initial Release
 Rilis pertama ToDoList dengan fitur dasar:
 - Autentikasi user

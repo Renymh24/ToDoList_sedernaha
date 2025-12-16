@@ -12,7 +12,7 @@ class EditController extends Controller
         if($todo->user_id !== Auth::id()){
             abort(403);
         }
-
+        //validasi error messages
         $request->validate([
             'title' => 'required|max:255',
             'description' => 'nullable|max:1000',

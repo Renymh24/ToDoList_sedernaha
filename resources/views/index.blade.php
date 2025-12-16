@@ -170,10 +170,11 @@
             </a>
         </div>
 
-        <!-- Search Form -->
+        <!-- Search and Filter Form -->
         <div class="mb-8">
             <form method="GET" action="{{ route('home') }}" class="bg-white rounded-2xl shadow-xl p-6 border-l-4 border-primary">
-                <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex flex-col lg:flex-row gap-4">
+                    <!-- Search Input -->
                     <div class="flex-grow">
                         <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
                             <i class="fas fa-search mr-2 text-primary"></i>Search Tasks
@@ -187,14 +188,33 @@
                             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-300"
                         >
                     </div>
+                    
+                    <!-- Status Filter -->
+                    <div class="w-full lg:w-64">
+                        <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-filter mr-2 text-primary"></i>Filter by Status
+                        </label>
+                        <select 
+                            id="status" 
+                            name="status" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-300 bg-white"
+                        >
+                            <option value="all" {{ $status == 'all' ? 'selected' : '' }}>All Status</option>
+                            <option value="pending" {{ $status == 'pending' ? 'selected' : '' }}>⏳ Pending</option>
+                            <option value="completed" {{ $status == 'completed' ? 'selected' : '' }}>✅ Completed</option>
+                            <option value="late" {{ $status == 'late' ? 'selected' : '' }}>⚠️ Late</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Action Buttons -->
                     <div class="flex gap-2 items-end">
                         <button 
                             type="submit" 
                             class="bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white px-8 py-3 rounded-xl font-semibold transition duration-300 transform hover:scale-105 shadow-lg flex items-center whitespace-nowrap"
                         >
-                            <i class="fas fa-search mr-2"></i>Search
+                            <i class="fas fa-filter mr-2"></i>Apply
                         </button>
-                        @if($search)
+                        @if($search || $status != 'all')
                         <a 
                             href="{{ route('home') }}" 
                             class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-semibold transition duration-300 transform hover:scale-105 shadow-lg flex items-center whitespace-nowrap"
@@ -204,10 +224,27 @@
                         @endif
                     </div>
                 </div>
-                @if($search)
-                <div class="mt-4 text-sm text-gray-600">
-                    <i class="fas fa-info-circle mr-2 text-primary"></i>
-                    Showing results for: <strong class="text-primary">"{{ $search }}"</strong>
+                
+                <!-- Active Filters Info -->
+                @if($search || $status != 'all')
+                <div class="mt-4 flex flex-wrap gap-2 items-center">
+                    <span class="text-sm text-gray-600">
+                        <i class="fas fa-info-circle mr-2 text-primary"></i>Active filters:
+                    </span>
+                    @if($search)
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-primary text-white">
+                        <i class="fas fa-search mr-2"></i>"{{ $search }}"
+                    </span>
+                    @endif
+                    @if($status != 'all')
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold 
+                        {{ $status == 'pending' ? 'bg-accent text-white' : '' }}
+                        {{ $status == 'completed' ? 'bg-green-500 text-white' : '' }}
+                        {{ $status == 'late' ? 'bg-red-500 text-white' : '' }}">
+                        <i class="fas fa-filter mr-2"></i>
+                        {{ ucfirst($status) }}
+                    </span>
+                    @endif
                 </div>
                 @endif
             </form>

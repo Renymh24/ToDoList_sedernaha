@@ -22,6 +22,11 @@ class TodoController extends Controller
             });
         }
 
+        // Filter berdasarkan status
+        if($request->has('status') && $request->status != '' && $request->status != 'all') {
+            $query->where('status', $request->status);
+        }
+
         $todos = $query->orderBy('deadline', 'asc')->get();
 
         foreach($todos as $todo) {
@@ -45,7 +50,8 @@ class TodoController extends Controller
         return view('index', [
             'todos' => $formattedTodos, 
             'stats' => $stats,
-            'search' => $request->search ?? ''
+            'search' => $request->search ?? '',
+            'status' => $request->status ?? 'all'
         ]);
     }
 

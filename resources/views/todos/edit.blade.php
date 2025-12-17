@@ -243,6 +243,7 @@
                     <div class="group">
                         <label for="deadline" class="block text-sm font-semibold text-gray-700 mb-3">
                             <i class="fas fa-calendar-alt mr-2 text-primary"></i>Deadline
+                            <span class="text-red-500 ml-1">*</span>
                             <span class="text-xs text-gray-500 ml-2">(When should this be completed?)</span>
                         </label>
                         <div class="relative">
@@ -250,6 +251,8 @@
                                    id="deadline"
                                    name="deadline"
                                    value="{{ old('deadline', $todo->deadline_for_input) }}"
+                                   min="{{ date('Y-m-d') }}"
+                                   required
                                    class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary focus:ring-opacity-20 focus:border-primary transition duration-300 text-lg @error('deadline') border-red-500 @enderror">
                             <div class="absolute inset-y-0 right-0 flex items-center pr-6">
                                 <i class="fas fa-clock text-gray-400 group-focus-within:text-primary transition duration-300"></i>
@@ -260,10 +263,10 @@
                                 <i class="fas fa-exclamation-circle mr-2"></i>{{ $message }}
                             </p>
                         @enderror
-                        <div class="mt-3 p-4 bg-gradient-to-r from-lightGold to-cream rounded-xl border border-accent">
-                            <p class="text-sm text-gray-600 flex items-center">
-                                <i class="fas fa-lightbulb mr-2 text-accent"></i>
-                                Leave empty if no specific deadline. Tasks with deadlines will be prioritized by Allah's will.
+                        <div class="mt-3 p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
+                            <p class="text-sm text-red-700 flex items-center font-semibold">
+                                <i class="fas fa-info-circle mr-2 text-red-600"></i>
+                                Deadline wajib diisi untuk manajemen waktu yang lebih baik.
                             </p>
                         </div>
                     </div>

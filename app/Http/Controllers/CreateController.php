@@ -18,7 +18,7 @@ class CreateController extends Controller
             'title.max' => 'Judul maksimal 255 karakter',
             'description.max' => 'Deskripsi maksimal 1000 karakter',
             'deadline.date' => 'Format tanggal tidak valid',
-            'deadline.after_or_equal' => 'Tanggal tidak boleh kurang dari hari ini',
+            'deadline.after_or_equal' => 'Tanggal deadline tidak boleh kurang dari hari ini',
         ]);
 
         ToDo::create([

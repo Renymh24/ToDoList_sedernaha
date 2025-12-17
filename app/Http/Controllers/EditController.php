@@ -12,17 +12,19 @@ class EditController extends Controller
         if($todo->user_id !== Auth::id()){
             abort(403);
         }
-
+        //validasi error messages
         $request->validate([
             'title' => 'required|max:255',
             'description' => 'nullable|max:1000',
-            'deadline' => 'nullable|date',
+            'deadline' => 'required|date|after_or_equal:today',
             'status' => 'required|in:pending,late,completed',
         ], [
             'title.required' => 'Judul todo wajib diisi',
             'title.max' => 'Judul maksimal 255 karakter',
             'description.max' => 'Deskripsi maksimal 1000 karakter',
+            'deadline.required' => 'Deadline wajib diisi',
             'deadline.date' => 'Format tanggal tidak valid',
+            'deadline.after_or_equal' => 'Tanggal deadline tidak boleh kurang dari hari ini',
             'status.required' => 'Status wajib dipilih',
             'status.in' => 'Status tidak valid',
         ]);

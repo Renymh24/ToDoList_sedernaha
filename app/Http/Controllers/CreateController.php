@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ToDo;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CreateController extends Controller
 {
@@ -21,12 +22,23 @@ class CreateController extends Controller
             'deadline.after_or_equal' => 'Tanggal deadline tidak boleh kurang dari hari ini',
         ]);
 
-        ToDo::create([
+        $todo = ToDo::create([
             'user_id' => Auth::id(),
             'title' => $request->title,
             'description' => $request->description,
             'deadline' => $request->deadline,
             'status' => 'pending',
+        ]);
+
+        // Log create task
+        Log::info('Task created successfully', [
+            'task_id' => $todo->id,
+            'user_id' => Auth::id(),
+            'user_email' => Auth::user()->email,
+            'title' => $todo->title,
+            'deadline' => $todo->deadline,
+            'status' => $todo->status,
+            'timestamp' => now()->toDateTimeString()
         ]);
 
         return redirect()->route('home')->with('success', 'Todo berhasil ditambahkan!');

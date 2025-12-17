@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\ToDo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EditController extends Controller
 {
@@ -12,6 +13,14 @@ class EditController extends Controller
         if($todo->user_id !== Auth::id()){
             abort(403);
         }
+
+        // Log data sebelum update
+        $oldData = [
+            'title' => $todo->title,
+            'description' => $todo->description,
+            'deadline' => $todo->deadline,
+            'status' => $todo->status,
+        ];
         //validasi error messages
         $request->validate([
             'title' => 'required|max:255',
@@ -45,6 +54,21 @@ class EditController extends Controller
 
         $todo->update($updateData);
 
+        // Log update task
+        Log::info('Task updated successfully', [
+            'task_id' => $todo->id,
+            'user_id' => Auth::id(),
+            'user_email' => Auth::user()->email,
+            'old_data' => $oldData,
+            'new_data' => [
+                'title' => $todo->title,
+                'description' => $todo->description,
+                'deadline' => $todo->deadline,
+                'status' => $todo->status,
+            ],
+            'timestamp' => now()->toDateTimeString()
+        ]);
+
         return redirect()->route('home')->with('success', 'Todo berhasil diperbarui!');
     }
 
@@ -64,7 +88,19 @@ class EditController extends Controller
             $updateData['completed_at'] = null;
         }
 
+        $oldStatus = $todo->status;
         $todo->update($updateData);
+
+        // Log toggle status
+        Log::info('Task status toggled', [
+            'task_id' => $todo->id,
+            'user_id' => Auth::id(),
+            'user_email' => Auth::user()->email,
+            'title' => $todo->title,
+            'old_status' => $oldStatus,
+            'new_status' => $newStatus,
+            'timestamp' => now()->toDateTimeString()
+        ]);
 
         return redirect()->route('home')->with('success', 'Status todo berhasil diperbarui!');
     }

@@ -21,6 +21,7 @@
 - [API Documentation](#-api-documentation)
 - [Web Routes](#-web-routes)
 - [Helper Functions](#-helper-functions)
+- [Fitur Pencarian & Filter](#-fitur-pencarian--filter)
 - [Arsitektur](#️-arsitektur)
 - [Testing](#-testing)
 - [Kontribusi](#-kontribusi)
@@ -40,10 +41,13 @@
 - ✅ **Dual Interface** - Web dan API dalam satu aplikasi
 - ✅ **Authentication System** - Register, Login, Logout dengan Sanctum
 - ✅ **Smart Status Management** - Auto-update status berdasarkan deadline
+- ✅ **Search & Filter** - Pencarian dan filter data yang powerful
 - ✅ **Indonesian Localization** - Format tanggal dalam Bahasa Indonesia
 - ✅ **Color-Coded Deadlines** - Visual feedback untuk urgency tugas
 - ✅ **Clean Architecture** - Service Pattern & Repository Pattern
 - ✅ **Timezone Support** - Asia/Jakarta timezone handling
+- ✅ **Validation** - Validasi deadline yang ketat (required, tidak boleh masa lalu)
+- ✅ **Responsive Design** - UI yang responsive untuk mobile dan desktop
 
 ---
 
@@ -62,6 +66,8 @@
 - **Update** - Edit informasi tugas
 - **Delete** - Hapus tugas
 - **Toggle Status** - Quick toggle untuk menandai selesai/belum
+- **Search** - Pencarian tugas berdasarkan judul dan deskripsi
+- **Filter** - Filter tugas berdasarkan status (All, Pending, Completed, Late)
 
 ### 📊 Smart Features
 - **Auto Status Update** - Status otomatis berubah menjadi "late" jika melewati deadline
@@ -72,6 +78,8 @@
   - `completed` - Selesai dikerjakan
 - **Deadline Tracking** - Countdown hari tersisa
 - **Color Coding** - Merah (hari ini/lewat), Kuning (3 hari), Hijau (aman)
+- **Search & Filter** - Pencarian dan filter dapat dikombinasikan untuk hasil yang lebih spesifik
+- **Deadline Validation** - Validasi untuk memastikan deadline wajib diisi dan tidak boleh masa lalu
 
 ### 🌐 Date Helper
 - Format tanggal Indonesia (15 Januari 2025)
@@ -91,11 +99,18 @@
 - **Laravel Sanctum 4.0** - API Authentication
 - **Carbon** - Date/Time Manipulation
 
+### Frontend
+- **Blade Templates** - Laravel Templating Engine
+- **Tailwind CSS 4.x** - Utility-first CSS Framework
+- **Vite** - Frontend Build Tool
+- **Islamic Theme** - Custom UI design dengan tema Islamic
+
 ### Development Tools
 - **Composer** - PHP Dependency Manager
 - **Artisan** - Laravel CLI
 - **Faker** - Test Data Generator
 - **PHPUnit 11.5** - Testing Framework
+- **Laravel Debugbar** - Development debugging tool
 
 ### Libraries
 ```json
@@ -506,7 +521,13 @@ Content-Type: application/json
 **Validasi:**
 - `title`: required, string, max 255 karakter
 - `description`: nullable, string
-- `deadline`: required, date, harus hari ini atau setelahnya
+- `deadline`: **required**, date, **harus hari ini atau setelahnya** (after_or_equal:today)
+
+**Catatan Validasi:**
+- Deadline **wajib diisi** (tidak boleh kosong)
+- Deadline tidak boleh tanggal masa lalu
+- Jika deadline tidak valid, akan muncul error message dalam bahasa Indonesia
+- Validasi dilakukan di server-side (Laravel) dan client-side (HTML5)
 
 **Response Success (200):**
 ```json
@@ -552,8 +573,12 @@ Content-Type: application/json
 **Validasi:**
 - `title`: required, string, max 255
 - `description`: nullable, string
-- `deadline`: required, date
+- `deadline`: **required**, date, **after_or_equal:today**
 - `status`: nullable, in: pending, in_progress, completed, late
+
+**Catatan Validasi:**
+- Saat update, deadline tetap wajib diisi dan tidak boleh masa lalu
+- Status akan otomatis diupdate menjadi "late" jika melewati deadline
 
 **Response Success (200):**
 ```json
@@ -701,17 +726,58 @@ GET /
 ```
 Menampilkan daftar semua todo milik user yang login.
 
+**Query Parameters:**
+- `search` (optional) - Pencarian berdasarkan judul atau deskripsi todo
+- `status` (optional) - Filter berdasarkan status (all, pending, completed, late)
+
+**Contoh:**
+```
+GET /?search=belajar
+GET /?status=pending
+GET /?search=laravel&status=completed
+```
+
+**Fitur:**
+- Pencarian real-time dengan LIKE query
+- Filter status dengan dropdown select
+- Kombinasi search dan filter
+- Badge indicator untuk filter aktif
+- Tombol reset untuk clear pencarian/filter
+
 #### Create Todo Page
 ```
 GET /todos/create
 ```
 Menampilkan form untuk membuat todo baru.
 
+**Form Fields:**
+- `title` - Required, max 255 karakter
+- `description` - Optional
+- `deadline` - **Required**, tidak boleh masa lalu
+
+**Validasi:**
+- Client-side validation dengan HTML5 (required, min date)
+- Server-side validation di CreateController
+- Error message dalam Bahasa Indonesia
+- Visual indicator (*) untuk field wajib
+
 #### Store Todo
 ```
 POST /todos
 ```
 Menyimpan todo baru ke database.
+
+**Validation Rules:**
+```php
+$request->validate([
+    'title' => 'required|string|max:255',
+    'description' => 'nullable|string',
+    'deadline' => 'required|date|after_or_equal:today',
+], [
+    'deadline.required' => 'Deadline wajib diisi.',
+    'deadline.after_or_equal' => 'Deadline tidak boleh tanggal masa lalu.',
+]);
+```
 
 #### Edit Todo Page
 ```
@@ -944,6 +1010,172 @@ public static function formatDeadlineWithColor($date)
 
 ---
 
+## 🔍 Fitur Pencarian & Filter
+
+### Search Functionality
+
+Aplikasi ini menyediakan fitur pencarian yang memungkinkan user untuk mencari todo berdasarkan **judul** atau **deskripsi**.
+
+#### Implementasi di Controller
+
+File [`TodoController.php`](app/Http/Controllers/TodoController.php):
+
+```php
+public function index(Request $request){
+    $query = ToDo::where('user_id', Auth::id());
+
+    // Search functionality
+    if ($request->filled('search')) {
+        $searchTerm = $request->search;
+        $query->where(function($q) use ($searchTerm) {
+            $q->where('title', 'like', '%' . $searchTerm . '%')
+              ->orWhere('description', 'like', '%' . $searchTerm . '%');
+        });
+    }
+
+    // Status filter
+    if ($request->filled('status') && $request->status !== 'all') {
+        $query->where('status', $request->status);
+    }
+
+    $todos = $query->latest()->get();
+    // ... format data
+}
+```
+
+#### Penggunaan di Blade
+
+File [`index.blade.php`](resources/views/todos/index.blade.php):
+
+```blade
+{{-- Search Form --}}
+<form method="GET" action="{{ route('home') }}" class="mb-6">
+    <div class="flex gap-4 items-end">
+        {{-- Search Input --}}
+        <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                🔍 Cari Todo
+            </label>
+            <input type="text" 
+                   name="search" 
+                   value="{{ request('search') }}"
+                   placeholder="Cari berdasarkan judul atau deskripsi..."
+                   class="w-full px-4 py-2 border rounded-lg">
+        </div>
+
+        {{-- Status Filter --}}
+        <div class="w-48">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                📊 Status
+            </label>
+            <select name="status" 
+                    class="w-full px-4 py-2 border rounded-lg">
+                <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>
+                    Semua Status
+                </option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
+                    Pending
+                </option>
+                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>
+                    Completed
+                </option>
+                <option value="late" {{ request('status') == 'late' ? 'selected' : '' }}>
+                    Late
+                </option>
+            </select>
+        </div>
+
+        {{-- Action Buttons --}}
+        <div class="flex gap-2">
+            <button type="submit" 
+                    class="px-6 py-2 bg-emerald-600 text-white rounded-lg">
+                Apply
+            </button>
+            <a href="{{ route('home') }}" 
+               class="px-6 py-2 bg-gray-500 text-white rounded-lg">
+                Reset
+            </a>
+        </div>
+    </div>
+
+    {{-- Active Filter Badge --}}
+    @if(request('search') || (request('status') && request('status') !== 'all'))
+        <div class="mt-3 flex items-center gap-2">
+            <span class="text-sm text-gray-600">Filter aktif:</span>
+            @if(request('search'))
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                    🔍 "{{ request('search') }}"
+                </span>
+            @endif
+            @if(request('status') && request('status') !== 'all')
+                <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+                    📊 {{ ucfirst(request('status')) }}
+                </span>
+            @endif
+        </div>
+    @endif
+</form>
+```
+
+### Filter by Status
+
+Aplikasi menyediakan 4 opsi filter status:
+- **All** - Menampilkan semua todo
+- **Pending** - Hanya todo dengan status pending
+- **Completed** - Hanya todo yang sudah selesai
+- **Late** - Hanya todo yang terlambat
+
+### Kombinasi Search & Filter
+
+User dapat menggunakan search dan filter secara bersamaan:
+
+```
+Example: Mencari "belajar" dengan status "pending"
+URL: /?search=belajar&status=pending
+```
+
+### Technical Details
+
+#### Query Building
+```php
+// Base query - hanya todo milik user yang login
+$query = ToDo::where('user_id', Auth::id());
+
+// Search dengan LIKE untuk partial matching
+if ($request->filled('search')) {
+    $searchTerm = $request->search;
+    $query->where(function($q) use ($searchTerm) {
+        $q->where('title', 'like', '%' . $searchTerm . '%')
+          ->orWhere('description', 'like', '%' . $searchTerm . '%');
+    });
+}
+
+// Filter berdasarkan status
+if ($request->filled('status') && $request->status !== 'all') {
+    $query->where('status', $request->status);
+}
+
+// Order by latest
+$todos = $query->latest()->get();
+```
+
+#### State Persistence
+Form menggunakan `request()` helper untuk mempertahankan nilai input:
+
+```blade
+<input type="text" 
+       name="search" 
+       value="{{ request('search') }}">
+
+<select name="status">
+    <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>
+        Semua Status
+    </option>
+</select>
+```
+
+---
+
 ## 🏗️ Arsitektur
 
 ### Class Diagram
@@ -1006,9 +1238,10 @@ classDiagram
     }
 
     class TodoController {
-        +index() View
+        +index(Request) View
         +create() View
         +edit(ToDo) View
+        -formatTodoData(todo) array
     }
 
     class CreateController {
@@ -1649,7 +1882,15 @@ SOFTWARE.
 
 ## 🎉 Changelog
 
-### Version 1.0.0 (December 2025)
+### Version 1.1.0 (Unreleased)
+- ✅ **Fitur Pencarian** - Pencarian todo berdasarkan judul dan deskripsi
+- ✅ **Fitur Filter Status** - Filter todo berdasarkan status (All, Pending, Completed, Late)
+- ✅ **Kombinasi Search & Filter** - Search dan filter dapat digunakan bersamaan
+- ✅ **Deadline Validation** - Validasi deadline wajib diisi dan tidak boleh masa lalu
+- ✅ **Improved UI** - Badge indicator dan tombol reset untuk pencarian/filter
+- ✅ **Error Messages** - Pesan error dalam bahasa Indonesia
+
+### Version 1.0.0 (May 2025)
 - ✅ Initial release
 - ✅ User authentication (Web & API)
 - ✅ Todo CRUD operations
@@ -1659,6 +1900,8 @@ SOFTWARE.
 - ✅ Auto status update based on deadline
 - ✅ Service & Repository pattern
 - ✅ Comprehensive documentation
+- ✅ Islamic Theme UI with Tailwind CSS
+- ✅ Responsive design untuk mobile & desktop
 
 ---
 
